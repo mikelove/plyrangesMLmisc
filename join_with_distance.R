@@ -1,12 +1,4 @@
 library(plyranges)
-x <- data.frame(seqnames=1,
-                start=sample(10,10,FALSE),
-                width=2, id=1:10) %>%
-  as_granges()
-y <- data.frame(seqnames=1,
-                start=sample(10,10,FALSE),
-                width=2, id=letters[1:10]) %>%
-  as_granges()
 
 join_overlap_inner_add_distance <- function(x, y, ...) {
   mcols(y)$.y_start <- start(y)
@@ -16,8 +8,10 @@ join_overlap_inner_add_distance <- function(x, y, ...) {
   ex <- end(olaps)
   sy <- mcols(olaps)$.y_start
   ey <- mcols(olaps)$.y_end
+  # if x is entirely left of y:
   distance <- ifelse(ex < sy,
                      sy - ex - 1,
+  # else if x is entirely right of y
               ifelse(sx > ey,
                      sx - ey - 1,
                      0))
@@ -27,5 +21,14 @@ join_overlap_inner_add_distance <- function(x, y, ...) {
   olaps
 }
 
+x <- data.frame(seqnames=1,
+                start=sort(sample(19,4,FALSE)),
+                width=2, id=1:4) |>
+  as_granges()
+y <- data.frame(seqnames=1,
+                start=sort(sample(19,4,FALSE)),
+                width=2, id=letters[1:4]) |>
+  as_granges()
+
 x |>
-  join_overlap_inner_add_distance(y, maxgap=1L)
+  join_overlap_inner_add_distance(y, maxgap=5L)
