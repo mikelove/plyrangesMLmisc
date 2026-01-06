@@ -6,14 +6,15 @@ dat <- data.frame(foo=c(1,1,2,2,3), bar=11:15)
 
 mcols(x) |> left_join(dat, by="foo")
 mcols(x) |> as_tibble() |> left_join(dat)
-x |> join_mcols_left(dat) # definition below
+x |> join_mcols_left(dat, by="foo") # definition below
 
+# dots passed to DFplyr's left_join
 join_mcols_left <- function(x, y, ...) {
   x_id <- x %>%
     mutate(.id = factor(seq_along(.)))
   new_mcols <- x_id |>
     mcols() |>
-    left_join(y, by = "foo") |>
+    left_join(y, ...) |>
     arrange(.id)
   new_x <- x[as.integer(new_mcols$.id)]
   new_mcols <- new_mcols |> select(-.id)
